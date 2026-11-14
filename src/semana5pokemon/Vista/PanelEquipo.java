@@ -3,16 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package semana5pokemon.Vista;
-
+import Excepciones.BatallaException;
 import Excepciones.EquipoLlenoException;
 import Excepciones.EquipoNoGuardadoException;
 import Excepciones.LimiteCopiasException;
-import excepciones.SeleccionVaciaException;
+import Excepciones.SeleccionVaciaException;
 import modelo.Catalogo;
 import modelo.Entrenador;
 import modelo.Equipo;
 import modelo.GestorEquipo;
- 
+import modelo.Pokemon;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -83,7 +83,7 @@ public class PanelEquipo extends JPanel {
     public PanelEquipo(VentanaPrincipal ventana, Catalogo catalogo) {
         this.ventana = ventana;
 
-        for (Pokemon pokemon : catalogo.getPokemones()) {
+        for (Pokemon pokemon : catalogo.obtenerTodos()) {
             modeloCatalogo.addElement(pokemon);
         }
 
@@ -203,15 +203,6 @@ public class PanelEquipo extends JPanel {
         listaEquipo.addListSelectionListener(e -> mostrarFichaSeleccion(e, listaEquipo));
     }
 
-    // ------------------------------------------------------------------
-    // API usada por VentanaPrincipal
-    // ------------------------------------------------------------------
-
-    /**
-     * Prepara la pantalla para armar un equipo nuevo. Se llama tanto al llegar desde
-     * Inicio como al elegir "Nueva partida". La copia guardada con "Guardar equipo"
-     * se conserva entre partidas.
-     */
     public void iniciar(Entrenador entrenador) {
         this.entrenador = entrenador;
         entrenador.getEquipo().vaciar();
@@ -231,7 +222,7 @@ public class PanelEquipo extends JPanel {
         Pokemon seleccion = listaCatalogo.getSelectedValue();
         Equipo equipo = entrenador.getEquipo();
         try {
-            equipo.agregarCopia(seleccion);   // el modelo clona al agregar
+            equipo.agregar(seleccion);   // el modelo clona al agregar
             actualizarEquipo();
             listaEquipo.setSelectedIndex(modeloEquipo.size() - 1);
             mostrarOk(seleccion.getNombre() + " se agregó a tu equipo.");
@@ -244,7 +235,9 @@ public class PanelEquipo extends JPanel {
         int indice = listaEquipo.getSelectedIndex();
         Equipo equipo = entrenador.getEquipo();
         try {
-            Pokemon quitado = equipo.quitar(indice);
+            
+            Pokemon quitado = equipo.getIntegrantes().get(indice);
+            equipo.quitar(indice);
             actualizarEquipo();
             mostrarOk(quitado.getNombre() + " salió de tu equipo.");
         } catch (SeleccionVaciaException ex) {
@@ -255,8 +248,8 @@ public class PanelEquipo extends JPanel {
     private void guardarEquipo() {
         try {
             gestorEquipo.guardar(entrenador);
-            mostrarOk("Equipo guardado en memoria (" + entrenador.getEquipo().cantidad() + " Pokémon).");
-        } catch (IOException ex) {
+            mostrarOk("Equipo guardado en memoria (" + entrenador.getEquipo().getCantidad() + " Pokémon).");
+        } catch (BatallaException ex) {
             mostrarError("No se pudo guardar el equipo.");
         }
     }
@@ -266,29 +259,24 @@ public class PanelEquipo extends JPanel {
             Entrenador restaurado = gestorEquipo.restaurar();
             entrenador.setEquipo(restaurado.getEquipo());
             actualizarEquipo();
-            mostrarOk("Equipo restaurado (" + entrenador.getEquipo().cantidad() + " Pokémon).");
+            mostrarOk("Equipo restaurado (" + entrenador.getEquipo().getCantidad() + " Pokémon).");
         } catch (EquipoNoGuardadoException ex) {
             mostrarError(ex.getMessage());
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (BatallaException ex) {
             mostrarError("No se pudo restaurar el equipo.");
         }
     }
 
-    // ------------------------------------------------------------------
-    // Actualización de la vista
-    // ------------------------------------------------------------------
-
-    /** Redibuja la lista del equipo, el contador y el estado del botón Comenzar batalla. */
     private void actualizarEquipo() {
         Equipo equipo = entrenador.getEquipo();
 
         modeloEquipo.clear();
-        for (Pokemon pokemon : equipo.getPokemones()) {
+        for (Pokemon pokemon : equipo.getIntegrantes()) {
             modeloEquipo.addElement(pokemon);
         }
 
-        lblCantidad.setText("Equipo: " + equipo.cantidad() + "/" + Equipo.MAX_INTEGRANTES);
-        btnComenzar.setEnabled(equipo.cantidad() >= 1);
+        lblCantidad.setText("Equipo: " + equipo.getCantidad() + "/" + Equipo.MAXIMO);
+        btnComenzar.setEnabled(equipo.getCantidad() >= 1);
     }
 
     private void mostrarFichaSeleccion(ListSelectionEvent e, JList<Pokemon> lista) {
@@ -315,7 +303,7 @@ public class PanelEquipo extends JPanel {
                 p.getNombre(),
                 p.getTipo().getNombre(),
                 p.getNivel(),
-                p.getPsMaximos(),
+                p.getPsMax(),
                 p.getAtaque(),
                 p.getDefensa(),
                 p.getVelocidad(),
@@ -336,11 +324,6 @@ public class PanelEquipo extends JPanel {
         lblMensaje.setText(" ");
     }
 
-    // ------------------------------------------------------------------
-    // Renderer de las listas
-    // ------------------------------------------------------------------
-
-    /** Muestra "Nombre - Tipo - Nv. N". En Mi equipo numera y marca al primero en salir. */
     private static class PokemonRenderer extends DefaultListCellRenderer {
 
         private static final long serialVersionUID = 1L;

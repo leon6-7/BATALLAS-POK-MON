@@ -21,7 +21,6 @@ public abstract class Pokemon implements Serializable, Cloneable {
     private String nombreEspecial;
     private int potenciaEspecial;
     private ArrayList<Habilidad> habilidades;   
-
     public Pokemon(String nombre, TipoPokemon tipo, int psMax, int ataque, int defensa,
                    int velocidad, String nombreEspecial, int potenciaEspecial) {
         this.nombre = nombre;
@@ -36,7 +35,6 @@ public abstract class Pokemon implements Serializable, Cloneable {
         this.usosRecuperacion = Recuperacion.USOS_MAXIMOS;
         this.nombreEspecial = nombreEspecial;
         this.potenciaEspecial = potenciaEspecial;
-
         habilidades = new ArrayList<>();
         habilidades.add(new AtaqueBasico());
         habilidades.add(new HabilidadEspecial());
@@ -162,7 +160,9 @@ public abstract class Pokemon implements Serializable, Cloneable {
     }
 
     //  Getters 
-
+    public HabilidadEspecial getHabilidadEspecial(){
+    return new HabilidadEspecial();
+    }
     public String getNombre() { 
         return nombre; }
     
