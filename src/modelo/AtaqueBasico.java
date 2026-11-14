@@ -1,4 +1,3 @@
-
 package modelo;
 
 import Excepciones.AccionInvalidaException;

@@ -1,5 +1,3 @@
-
-
 package Excepciones;
 
 public class SeleccionVaciaException extends BatallaException {

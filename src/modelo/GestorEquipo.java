@@ -1,4 +1,3 @@
-
 package modelo;
 
 import Excepciones.BatallaException;
@@ -11,9 +10,8 @@ import java.io.ObjectOutputStream;
 
 public class GestorEquipo {
 
-    private byte[] copiaGuardada;   
+    private byte[] copiaGuardada;
 
-   // boton guardar
     public void guardar(Entrenador entrenador) throws BatallaException {
         try (ByteArrayOutputStream bytes = new ByteArrayOutputStream();
              ObjectOutputStream salida = new ObjectOutputStream(bytes)) {
@@ -25,7 +23,6 @@ public class GestorEquipo {
         }
     }
 
-    // boton Restaurar
     public Entrenador restaurar() throws BatallaException {
         if (copiaGuardada == null) {
             throw new EquipoNoGuardadoException("Primero debes guardar un equipo");

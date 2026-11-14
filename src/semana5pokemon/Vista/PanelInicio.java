@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package semana5pokemon.Vista;
 
 import javax.swing.BorderFactory;
@@ -13,6 +9,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import modelo.Entrenador;
+import Excepciones.NombreInvalidoException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Color;
@@ -132,9 +130,9 @@ public class PanelInicio extends JPanel {
 
     private void registrarEventos() {
         btnContinuar.addActionListener(e -> continuar());
-        txtNombre.addActionListener(e -> continuar());         
+        txtNombre.addActionListener(e -> continuar());
         btnInstrucciones.addActionListener(e -> mostrarInstrucciones());
-        
+        btnSalir.addActionListener(e -> ventana.salir());
 
         txtNombre.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -155,7 +153,12 @@ public class PanelInicio extends JPanel {
     }
 
     private void continuar() {
-        System.out.println("Continuo");
+        try {
+            Entrenador entrenador = new Entrenador(txtNombre.getText());
+            ventana.irAEquipo(entrenador);
+        } catch (NombreInvalidoException ex) {
+            lblMensaje.setText(ex.getMessage());
+        }
     }
 
     private void limpiarMensaje() {

@@ -1,4 +1,3 @@
-
 package modelo;
 
 import Excepciones.EquipoLlenoException;
@@ -18,8 +17,6 @@ public class Equipo implements Serializable {
         integrantes = new ArrayList<>();
     }
 
-    // Armado del equipo
-
     public void agregar(Pokemon pokemon)
             throws SeleccionVaciaException, EquipoLlenoException, LimiteCopiasException {
         if (pokemon == null) {
@@ -32,7 +29,7 @@ public class Equipo implements Serializable {
             throw new LimiteCopiasException("Solo puedes tener " + MAX_COPIAS + " copias de "
                     + pokemon.getNombre() + ".");
         }
-        integrantes.add(pokemon);
+        integrantes.add(pokemon.clone());
     }
 
     public void quitar(int indice) throws SeleccionVaciaException {
@@ -52,37 +49,31 @@ public class Equipo implements Serializable {
         return copias;
     }
 
-   
-
-    
     public int sumarPsRestantes() {
         return sumarPsDesde(0);
     }
 
     private int sumarPsDesde(int indice) {
-        if (indice >= integrantes.size()) {           // caso base
+        if (indice >= integrantes.size()) {
             return 0;
         }
-        return integrantes.get(indice).getPsActual() 
-                + sumarPsDesde(indice + 1);       
+        return integrantes.get(indice).getPsActual()
+                + sumarPsDesde(indice + 1);
     }
 
-    
     public int buscarSiguienteDisponible(int desde) {
-        if (desde >= integrantes.size()) {            // caso base 1
+        if (desde >= integrantes.size()) {
             return -1;
         }
         if (integrantes.get(desde).estaDebilitado()) {
             return buscarSiguienteDisponible(desde + 1);
         }
-        return desde;                                 // caso base 2
+        return desde;
     }
 
     public boolean todosDebilitados() {
         return buscarSiguienteDisponible(0) == -1;
     }
-
-    //Datos para el resultado 
 
     public int contarDebilitados() {
         int total = 0;
@@ -98,9 +89,6 @@ public class Equipo implements Serializable {
         return integrantes.size() - contarDebilitados();
     }
 
-    
-
-    
     public Equipo copiar() {
         Equipo copia = new Equipo();
         for (Pokemon p : integrantes) {
@@ -109,7 +97,6 @@ public class Equipo implements Serializable {
         return copia;
     }
 
-    //Equipo rival
     public static Equipo generarRival(Catalogo catalogo, int cantidad) {
         Equipo rival = new Equipo();
         for (int i = 0; i < cantidad; i++) {
@@ -118,10 +105,12 @@ public class Equipo implements Serializable {
         return rival;
     }
 
-    // Getters
-
     public Pokemon get(int indice) {
         return integrantes.get(indice);
+    }
+
+    public void vaciar() {
+        integrantes.clear();
     }
 
     public int getCantidad() {

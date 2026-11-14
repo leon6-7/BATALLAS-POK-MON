@@ -1,11 +1,10 @@
-
 package modelo;
 
 import Excepciones.AccionInvalidaException;
 
 public class HabilidadEspecial implements Habilidad {
     public static final int USOS_MAXIMOS = 3;
-  // condicionales para los pokemons
+
     @Override
     public String ejecutar(Pokemon usuario, Pokemon objetivo) throws AccionInvalidaException {
         if (usuario.estaDebilitado()) {
@@ -16,7 +15,7 @@ public class HabilidadEspecial implements Habilidad {
                     + usuario.getNombreEspecial() + ".");
         }
         usuario.consumirUsoEspecial();
-        
+
         return usuario.getNombre() + " usó " + usuario.getNombreEspecial() + ". "
                 + usuario.efectoEspecial(objetivo);
     }

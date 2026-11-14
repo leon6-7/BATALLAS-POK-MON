@@ -1,4 +1,3 @@
-
 package semana5pokemon.Control;
 
 import Excepciones.AccionInvalidaException;
@@ -24,7 +23,7 @@ public class Batalla {
     private final Random random = new Random();
     private final List<String> mensajes = new ArrayList<>();
 
-    private int indiceActivoJugador = 0;   // el primero de la lista sale primero
+    private int indiceActivoJugador = 0;
     private int indiceActivoRival = 0;
     private int ronda = 1;
     private int mensajesLeidos = 0;
@@ -51,7 +50,6 @@ public class Batalla {
         }
         this.equipoRival = generarRival(catalogo, equipoJugador.getCantidad());
     }
-
 
     private Equipo generarRival(Catalogo catalogo, int cantidad) {
         List<Pokemon> disponibles = catalogo.obtenerTodos();
@@ -94,7 +92,6 @@ public class Batalla {
         agregarMensaje(entrenador.getNombre() + " envía a " + activo(true).getNombre() + ".");
         agregarMensaje(NOMBRE_RIVAL + " envía a " + activo(false).getNombre() + ".");
     }
-
 
     public void ejecutarRonda(AccionBatalla accion, int indiceCambio) throws AccionInvalidaException {
         if (estado != EstadoBatalla.ESPERANDO_ACCION) {
@@ -233,7 +230,6 @@ public class Batalla {
         agregarMensaje(resultado.getMensajeFinal());
     }
 
-
     private void validarAccion(boolean esJugador, AccionBatalla accion, int indiceCambio)
             throws AccionInvalidaException {
         Pokemon activo = activo(esJugador);
@@ -241,7 +237,7 @@ public class Batalla {
             throw new AccionInvalidaException(activo.getNombre() + " está debilitado y no puede actuar.");
         }
         switch (accion) {
-            case ATACAR -> { }   // siempre es válida si el Pokémon puede actuar
+            case ATACAR -> { }
             case HABILIDAD_ESPECIAL -> {
                 if (!activo.puedeUsarEspecial()) {
                     throw new AccionInvalidaException(
@@ -272,7 +268,6 @@ public class Batalla {
         }
     }
 
-    /** Versión sin excepciones de validarAccion, para saber qué acciones habilitar. */
     private boolean esAccionPosible(boolean esJugador, AccionBatalla accion) {
         Pokemon activo = activo(esJugador);
         if (activo.estaDebilitado()) {
@@ -356,7 +351,6 @@ public class Batalla {
         return validas;
     }
 
-
     public List<Integer> getIndicesCambioDisponibles() {
         if (estado != EstadoBatalla.ESPERANDO_ACCION && estado != EstadoBatalla.ELEGIR_REEMPLAZO) {
             return new ArrayList<>();
@@ -392,7 +386,6 @@ public class Batalla {
         mensajesLeidos = mensajes.size();
         return nuevos;
     }
-
 
     private List<Pokemon> pokemones(boolean esJugador) {
         return (esJugador ? equipoJugador : equipoRival).getIntegrantes();

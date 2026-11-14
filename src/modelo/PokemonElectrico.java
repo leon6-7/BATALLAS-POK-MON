@@ -1,4 +1,3 @@
-
 package modelo;
 
 public class PokemonElectrico extends Pokemon {
@@ -10,7 +9,6 @@ public class PokemonElectrico extends Pokemon {
         super(nombre, TipoPokemon.ELECTRICO, psMax, ataque, defensa, velocidad, "Impactrueno", 17);
     }
 
-    // efecto especial
     @Override
     protected String efectoEspecial(Pokemon objetivo) {
         boolean critico = Math.random() < PROBABILIDAD_CRITICO;

@@ -1,6 +1,4 @@
-
 package modelo;
-
 
 public enum TipoPokemon {
     FUEGO("Fuego"),
@@ -9,11 +7,11 @@ public enum TipoPokemon {
     ELECTRICO("Eléctrico");
 
     private static final double[][] TABLA = {
-        //  Fuego  Agua  Planta  Eléctrico
-        {   0.5,   0.5,  2.0,    1.0 },  
-        {   2.0,   0.5,  0.5,    1.0 },  
-        {   0.5,   2.0,  0.5,    1.0 },  
-        {   1.0,   2.0,  0.5,    0.5 }   
+
+        {   0.5,   0.5,  2.0,    1.0 },
+        {   2.0,   0.5,  0.5,    1.0 },
+        {   0.5,   2.0,  0.5,    1.0 },
+        {   1.0,   2.0,  0.5,    0.5 }
     };
 
     private final String nombre;
@@ -29,7 +27,7 @@ public enum TipoPokemon {
     public double getMultiplicador(TipoPokemon defensor) {
         return TABLA[this.ordinal()][defensor.ordinal()];
     }
-        
+
     public static String mensajeEfectividad(double multiplicador) {
     if (multiplicador == 2.0) {
         return "¡Es muy eficaz!";

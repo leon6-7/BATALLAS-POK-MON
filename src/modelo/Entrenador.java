@@ -1,4 +1,3 @@
-
 package modelo;
 
 import Excepciones.NombreInvalidoException;
@@ -17,12 +16,11 @@ public class Entrenador implements Serializable {
         this.equipo = new Equipo();
     }
 
-   // nombre
     public static String validarNombre(String nombre) throws NombreInvalidoException {
         if (nombre == null) {
             throw new NombreInvalidoException("Escribe el nombre del entrenador.");
         }
-        String limpio = nombre.trim();  
+        String limpio = nombre.trim();
 
         if (limpio.isEmpty()) {
             throw new NombreInvalidoException("El nombre no puede estar vacío ni tener solo espacios.");
@@ -34,7 +32,7 @@ public class Entrenador implements Serializable {
         for (int i = 0; i < limpio.length(); i++) {
             char c = limpio.charAt(i);
             if (Character.isLetterOrDigit(c) || c == ' ') {
-                continue;                
+                continue;
             }
             throw new NombreInvalidoException("El nombre solo puede tener letras, números y espacios");
         }

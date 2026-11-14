@@ -1,4 +1,3 @@
-
 package modelo;
 
 public class PokemonFuego extends Pokemon {
@@ -7,7 +6,6 @@ public class PokemonFuego extends Pokemon {
         super(nombre, TipoPokemon.FUEGO, psMax, ataque, defensa, velocidad, "Lanzallamas", 20);
     }
 
-    // habilidad Especial
     @Override
     protected String efectoEspecial(Pokemon objetivo) {
         int danio = golpear(objetivo, getPotenciaEspecial(), 1.0);

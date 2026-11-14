@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 public abstract class Pokemon implements Serializable, Cloneable {
 
+    private static final long serialVersionUID = 1L;
+
     public static final int NIVEL_INICIAL = 5;
 
     private String nombre;
@@ -20,7 +22,7 @@ public abstract class Pokemon implements Serializable, Cloneable {
     private int usosRecuperacion;
     private String nombreEspecial;
     private int potenciaEspecial;
-    private ArrayList<Habilidad> habilidades;   
+    private ArrayList<Habilidad> habilidades;
     public Pokemon(String nombre, TipoPokemon tipo, int psMax, int ataque, int defensa,
                    int velocidad, String nombreEspecial, int potenciaEspecial) {
         this.nombre = nombre;
@@ -41,12 +43,8 @@ public abstract class Pokemon implements Serializable, Cloneable {
         habilidades.add(new Recuperacion());
     }
 
- 
     protected abstract String efectoEspecial(Pokemon objetivo);
 
-    // Combate 
-
-    
     public int calcularDanio(Pokemon objetivo, int potencia, double extra) {
         double multiplicador = tipo.getMultiplicador(objetivo.tipo);
         double base = ataque + nivel + potencia - objetivo.defensa / 2.0;
@@ -54,13 +52,11 @@ public abstract class Pokemon implements Serializable, Cloneable {
         return Math.max(1, danio);
     }
 
-    // Calcula el daño
     protected int golpear(Pokemon objetivo, int potencia, double extra) {
         int danio = calcularDanio(objetivo, potencia, extra);
         return objetivo.recibirDanio(danio);
     }
 
-  // texto 
     protected String textoGolpe(Pokemon objetivo, int danio) {
     String efectividad = TipoPokemon.mensajeEfectividad(tipo.getMultiplicador(objetivo.tipo));
     String texto = "";
@@ -74,14 +70,12 @@ public abstract class Pokemon implements Serializable, Cloneable {
     return texto;
    }
 
-    // resta ps
     public int recibirDanio(int danio) {
         int antes = psActual;
         psActual = Math.max(0, psActual - danio);
         return antes - psActual;
     }
 
-    // Suma PS sin pasar del máximo
     public int curar(int cantidad) {
         int antes = psActual;
         psActual = Math.min(psMax, psActual + cantidad);
@@ -91,8 +85,6 @@ public abstract class Pokemon implements Serializable, Cloneable {
     public boolean estaDebilitado() {
         return psActual == 0;
     }
-
-    
 
     public String atacar(Pokemon objetivo) throws AccionInvalidaException {
         return habilidades.get(0).ejecutar(this, objetivo);
@@ -106,7 +98,6 @@ public abstract class Pokemon implements Serializable, Cloneable {
         return habilidades.get(2).ejecutar(this, null);
     }
 
-    // Para habilitar o deshabilitar botones 
          public boolean puedeUsarEspecial() {
             if (estaDebilitado()) {
                  return false;
@@ -128,20 +119,16 @@ public abstract class Pokemon implements Serializable, Cloneable {
         usosRecuperacion--;
     }
 
-   
-
     @Override
     public Pokemon clone() {
         try {
-            Pokemon copia = (Pokemon) super.clone();     
-            copia.habilidades = new ArrayList<>(this.habilidades); 
+            Pokemon copia = (Pokemon) super.clone();
+            copia.habilidades = new ArrayList<>(this.habilidades);
             return copia;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError("Pokemon implementa Cloneable", e);
         }
     }
-
-   
 
     public String getFicha() {
         return "Nombre: " + nombre
@@ -159,46 +146,45 @@ public abstract class Pokemon implements Serializable, Cloneable {
         return nombre + " (" + tipo + ")";
     }
 
-    //  Getters 
     public HabilidadEspecial getHabilidadEspecial(){
-    return new HabilidadEspecial();
+        return (HabilidadEspecial) habilidades.get(1);
     }
-    public String getNombre() { 
+    public String getNombre() {
         return nombre; }
-    
-    public TipoPokemon getTipo() { 
+
+    public TipoPokemon getTipo() {
         return tipo; }
-    
-    public int getNivel() { 
+
+    public int getNivel() {
         return nivel; }
-    
-    public int getPsMax() { 
+
+    public int getPsMax() {
         return psMax; }
-    
+
     public int getPsActual() {
         return psActual; }
-    
-    public int getAtaque() { 
+
+    public int getAtaque() {
         return ataque; }
-    
-    public int getDefensa() { 
+
+    public int getDefensa() {
         return defensa; }
-    
+
     public int getVelocidad() {
         return velocidad; }
-    
-    public int getUsosEspecial() { 
+
+    public int getUsosEspecial() {
         return usosEspecial; }
-    
-    public int getUsosRecuperacion() { 
+
+    public int getUsosRecuperacion() {
         return usosRecuperacion; }
-    
+
     public String getNombreEspecial() {
         return nombreEspecial; }
-    
-    public int getPotenciaEspecial() { 
+
+    public int getPotenciaEspecial() {
         return potenciaEspecial; }
-    
-    public ArrayList<Habilidad> getHabilidades() { 
+
+    public ArrayList<Habilidad> getHabilidades() {
         return new ArrayList<>(habilidades); }
 }

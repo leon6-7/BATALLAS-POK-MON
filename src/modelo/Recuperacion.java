@@ -1,4 +1,3 @@
-
 package modelo;
 
 import Excepciones.AccionInvalidaException;
@@ -18,7 +17,7 @@ public class Recuperacion implements Habilidad {
             throw new AccionInvalidaException(usuario.getNombre() + " ya tiene los PS completos ");
         }
         usuario.consumirUsoRecuperacion();
-        int cantidad = usuario.getPsMax() / 4;          
+        int cantidad = usuario.getPsMax() / 4;
         int recuperado = usuario.curar(cantidad);
         return usuario.getNombre() + " se recuperó " + recuperado + " PS.";
     }

@@ -1,320 +1,185 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package semana5pokemon.Vista;
+
+import Excepciones.AccionInvalidaException;
+import modelo.Pokemon;
 import semana5pokemon.Control.AccionBatalla;
 import semana5pokemon.Control.Batalla;
 import semana5pokemon.Control.EstadoBatalla;
-import Excepciones.AccionInvalidaException;
-import modelo.Catalogo;
-import modelo.Entrenador;
-import modelo.Pokemon;
-
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Pantalla 3: la batalla.
- *
- * Es una vista "tonta": cada clic es un evento que llama a un método de Batalla,
- * y después el panel consulta el estado y se redibuja. Las reglas del combate
- * (orden, daño, reemplazos, fin de la batalla) viven en el paquete control.
- *
- * Los botones de acción se habilitan según Batalla.getAccionesValidas(), así que
- * quedan deshabilitados antes de comenzar, al elegir reemplazo y al terminar.
- */
 public class PanelBatalla extends JPanel {
-
     private static final long serialVersionUID = 1L;
-
-    private static final Color COLOR_AVISO = new Color(180, 30, 30);
-    private static final Color AZUL_OSCURO = new Color(20, 30, 100);
-
     private final VentanaPrincipal ventana;
-    private final Catalogo catalogo;
-
     private Batalla batalla;
-
-    private final JLabel lblTurno = new JLabel(" ", SwingConstants.CENTER);
-    private final JLabel lblEstado = new JLabel(" ", SwingConstants.CENTER);
+    private final JLabel lblRonda = new JLabel("", SwingConstants.CENTER);
+    private final JLabel lblEstado = new JLabel("", SwingConstants.CENTER);
     private final PanelPokemonActivo panelJugador = new PanelPokemonActivo();
     private final PanelPokemonActivo panelRival = new PanelPokemonActivo();
-    private final JTextArea areaMensajes = new JTextArea(8, 40);
-    private final JLabel lblAviso = new JLabel(" ", SwingConstants.CENTER);
+    private final JTextArea mensajes = new JTextArea();
+    private final JComboBox<OpcionPokemon> comboCambio = new JComboBox<>();
+    private final JButton btnAtacar = new JButton("Atacar");
+    private final JButton btnEspecial = new JButton("Habilidad especial");
+    private final JButton btnRecuperar = new JButton("Recuperar");
+    private final JButton btnCambiar = new JButton("Cambiar Pokémon");
+    private final JButton btnReemplazar = new JButton("Confirmar reemplazo");
 
-    private final JButton btnComenzar = new JButton("Comenzar batalla");
-    private final JButton btnVerResultado = new JButton("Ver resultado  >>");
-    private final Map<AccionBatalla, JButton> botonesAccion = new EnumMap<>(AccionBatalla.class);
-
-    public PanelBatalla(VentanaPrincipal ventana, Catalogo catalogo) {
+    public PanelBatalla(VentanaPrincipal ventana) {
         this.ventana = ventana;
-        this.catalogo = catalogo;
-
-        construirInterfaz();
+        construir();
         registrarEventos();
     }
 
-    // ------------------------------------------------------------------
-    // Construcción de la interfaz
-    // ------------------------------------------------------------------
-
-    private void construirInterfaz() {
+    private void construir() {
         setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
+        JPanel encabezado = new JPanel(new GridLayout(2, 1, 0, 4));
+        JLabel titulo = new JLabel("BATALLA POKÉMON", SwingConstants.CENTER);
+        titulo.setFont(titulo.getFont().deriveFont(Font.BOLD, 25f));
+        lblRonda.setFont(lblRonda.getFont().deriveFont(Font.BOLD, 16f));
+        encabezado.add(titulo);
+        encabezado.add(lblRonda);
+        add(encabezado, BorderLayout.NORTH);
 
-        add(construirEncabezado(), BorderLayout.NORTH);
+        JPanel bandos = new JPanel(new GridLayout(1, 2, 14, 0));
+        bandos.add(panelJugador);
+        bandos.add(panelRival);
+        add(bandos, BorderLayout.CENTER);
 
-        JPanel centro = new JPanel(new BorderLayout(0, 12));
-        centro.add(construirCampo(), BorderLayout.NORTH);
-        centro.add(construirMensajes(), BorderLayout.CENTER);
-        add(centro, BorderLayout.CENTER);
-
-        add(construirControles(), BorderLayout.SOUTH);
-    }
-
-    private JPanel construirEncabezado() {
-        lblTurno.setFont(lblTurno.getFont().deriveFont(Font.BOLD, 20f));
-        lblTurno.setForeground(AZUL_OSCURO);
-        lblEstado.setFont(lblEstado.getFont().deriveFont(Font.ITALIC, 13f));
-
-        JPanel norte = new JPanel(new GridLayout(2, 1));
-        norte.add(lblTurno);
-        norte.add(lblEstado);
-        return norte;
-    }
-
-    /** Los dos Pokémon activos enfrentados: jugador a la izquierda, rival a la derecha. */
-    private JPanel construirCampo() {
-        JLabel vs = new JLabel("VS", SwingConstants.CENTER);
-        vs.setFont(vs.getFont().deriveFont(Font.BOLD, 28f));
-        vs.setForeground(AZUL_OSCURO);
-
-        JPanel campo = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(0, 8, 0, 8);
-
-        gbc.gridx = 0;
-        gbc.weightx = 1.0;
-        campo.add(panelJugador, gbc);
-
-        gbc.gridx = 1;
-        gbc.weightx = 0.0;
-        campo.add(vs, gbc);
-
-        gbc.gridx = 2;
-        gbc.weightx = 1.0;
-        campo.add(panelRival, gbc);
-
-        return campo;
-    }
-
-    private JScrollPane construirMensajes() {
-        areaMensajes.setEditable(false);
-        areaMensajes.setLineWrap(true);
-        areaMensajes.setWrapStyleWord(true);
-        areaMensajes.setMargin(new Insets(6, 8, 6, 8));
-
-        JScrollPane scroll = new JScrollPane(areaMensajes);
+        mensajes.setEditable(false);
+        mensajes.setLineWrap(true);
+        mensajes.setWrapStyleWord(true);
+        mensajes.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        JScrollPane scroll = new JScrollPane(mensajes);
         scroll.setBorder(BorderFactory.createTitledBorder("Registro de la batalla"));
-        return scroll;
-    }
+        scroll.setPreferredSize(new java.awt.Dimension(100, 190));
 
-    private JPanel construirControles() {
-        lblAviso.setFont(lblAviso.getFont().deriveFont(Font.BOLD, 13f));
-        lblAviso.setForeground(COLOR_AVISO);
-        lblAviso.setPreferredSize(new Dimension(0, 24));
-
-        btnComenzar.setFont(btnComenzar.getFont().deriveFont(Font.BOLD, 14f));
-
-        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        acciones.add(btnComenzar);
-        for (AccionBatalla accion : AccionBatalla.values()) {
-            JButton boton = new JButton(accion.getTexto());
-            botonesAccion.put(accion, boton);
-            acciones.add(boton);
-        }
-        acciones.add(btnVerResultado);
-
-        JPanel sur = new JPanel(new GridLayout(2, 1, 0, 6));
-        sur.add(lblAviso);
-        sur.add(acciones);
-        return sur;
+        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 5));
+        acciones.add(btnAtacar);
+        acciones.add(btnEspecial);
+        acciones.add(btnRecuperar);
+        acciones.add(comboCambio);
+        acciones.add(btnCambiar);
+        acciones.add(btnReemplazar);
+        JPanel sur = new JPanel(new BorderLayout(5, 5));
+        sur.add(lblEstado, BorderLayout.NORTH);
+        sur.add(scroll, BorderLayout.CENTER);
+        sur.add(acciones, BorderLayout.SOUTH);
+        add(sur, BorderLayout.SOUTH);
     }
 
     private void registrarEventos() {
-        btnComenzar.addActionListener(e -> comenzar());
-        btnVerResultado.addActionListener(e -> ventana.irAResultado(batalla.getResultado()));
-        for (Map.Entry<AccionBatalla, JButton> par : botonesAccion.entrySet()) {
-            AccionBatalla accion = par.getKey();
-            par.getValue().addActionListener(e -> ejecutarAccion(accion));
-        }
+        btnAtacar.addActionListener(e -> ejecutar(AccionBatalla.ATACAR));
+        btnEspecial.addActionListener(e -> ejecutar(AccionBatalla.HABILIDAD_ESPECIAL));
+        btnRecuperar.addActionListener(e -> ejecutar(AccionBatalla.RECUPERAR));
+        btnCambiar.addActionListener(e -> ejecutar(AccionBatalla.CAMBIAR));
+        btnReemplazar.addActionListener(e -> confirmarReemplazo());
     }
 
-    public void iniciar(Entrenador entrenador) {
+    public void iniciar(Batalla batalla) {
+        this.batalla = batalla;
+        mensajes.setText("");
+        actualizar();
+    }
+
+    private void ejecutar(AccionBatalla accion) {
+        if (batalla == null) return;
+        int indice = accion == AccionBatalla.CAMBIAR ? indiceSeleccionado() : -1;
         try {
-            batalla = new Batalla(entrenador, catalogo);
+            batalla.ejecutarRonda(accion, indice);
+            actualizar();
         } catch (AccionInvalidaException ex) {
-            batalla = null;
-            JOptionPane.showMessageDialog(this, ex.getMessage(),
-                    "No se puede iniciar la batalla", JOptionPane.WARNING_MESSAGE);
-            SwingUtilities.invokeLater(() -> ventana.irAEquipo(entrenador));
-            return;
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Acción inválida", JOptionPane.WARNING_MESSAGE);
         }
-
-        panelJugador.setEntrenador("Entrenador: " + batalla.getNombreEntrenador());
-        panelRival.setEntrenador("Rival: " + batalla.getNombreRival());
-        areaMensajes.setText("Pulsa «Comenzar batalla» para iniciar.\n");
-        limpiarAviso();
-        actualizarVista();
     }
 
-    private void comenzar() {
+    private int indiceSeleccionado() {
+        OpcionPokemon seleccionado = (OpcionPokemon) comboCambio.getSelectedItem();
+        return seleccionado == null ? -1 : seleccionado.indice;
+    }
+
+    private void confirmarReemplazo() {
+        int indice = indiceSeleccionado();
         try {
-            batalla.comenzar();
-            limpiarAviso();
+            batalla.elegirReemplazo(indice);
+            actualizar();
         } catch (AccionInvalidaException ex) {
-            mostrarAviso(ex.getMessage());
-        }
-        volcarMensajes();
-        actualizarVista();
-    }
-
-    private void ejecutarAccion(AccionBatalla accion) {
-        int indiceCambio = -1;
-        if (accion == AccionBatalla.CAMBIAR) {
-            Integer elegido = elegirPokemon("Cambiar de Pokémon",
-                    "¿A qué Pokémon quieres cambiar?",
-                    batalla.getIndicesCambioDisponibles(), false);
-            if (elegido == null) {
-                return;   
-            }
-            indiceCambio = elegido;
-        }
-
-        try {
-            batalla.ejecutarRonda(accion, indiceCambio);
-            limpiarAviso();
-        } catch (AccionInvalidaException ex) {
-            mostrarAviso(ex.getMessage());
-            actualizarVista();
-            return;
-        }
-
-        volcarMensajes();
-        actualizarVista();
-
-        if (batalla.getEstado() == EstadoBatalla.ELEGIR_REEMPLAZO) {
-            SwingUtilities.invokeLater(this::pedirReemplazo);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Reemplazo inválido", JOptionPane.WARNING_MESSAGE);
         }
     }
 
-    private void pedirReemplazo() {
-        Integer elegido = elegirPokemon("Elegir reemplazo",
-                "Tu Pokémon fue debilitado. ¿Quién entra al combate?",
-                batalla.getIndicesCambioDisponibles(), true);
-        try {
-            batalla.elegirReemplazo(elegido);
-            limpiarAviso();
-        } catch (AccionInvalidaException ex) {
-            mostrarAviso(ex.getMessage());
-            SwingUtilities.invokeLater(this::pedirReemplazo);   // se vuelve a pedir
-        }
-        volcarMensajes();
-        actualizarVista();
-    }
-
-    private void actualizarVista() {
-        lblTurno.setText(batalla.getDescripcionTurno());
-        lblEstado.setText("Estado: " + batalla.getEstado().getTexto());
-
+    private void actualizar() {
+        if (batalla == null) return;
+        lblRonda.setText("Ronda " + batalla.getRonda() + " / " + Batalla.LIMITE_RONDAS);
+        lblEstado.setText(batalla.getDescripcionTurno());
+        panelJugador.setEntrenador(batalla.getNombreEntrenador());
+        panelRival.setEntrenador(batalla.getNombreRival());
         panelJugador.mostrar(batalla.getPokemonJugador());
-        panelJugador.setRestantes(contarEnPie(batalla.getEquipoJugador()), batalla.getEquipoJugador().size());
         panelRival.mostrar(batalla.getPokemonRival());
+        panelJugador.setRestantes(contarEnPie(batalla.getEquipoJugador()), batalla.getEquipoJugador().size());
         panelRival.setRestantes(contarEnPie(batalla.getEquipoRival()), batalla.getEquipoRival().size());
+        for (String mensaje : batalla.consumirMensajesNuevos()) mensajes.append(mensaje + "\n");
+        mensajes.setCaretPosition(mensajes.getDocument().getLength());
 
         List<AccionBatalla> validas = batalla.getAccionesValidas();
-        for (Map.Entry<AccionBatalla, JButton> par : botonesAccion.entrySet()) {
-            par.getValue().setEnabled(validas.contains(par.getKey()));
+        btnAtacar.setEnabled(validas.contains(AccionBatalla.ATACAR));
+        btnEspecial.setEnabled(validas.contains(AccionBatalla.HABILIDAD_ESPECIAL));
+        btnRecuperar.setEnabled(validas.contains(AccionBatalla.RECUPERAR));
+        btnCambiar.setEnabled(validas.contains(AccionBatalla.CAMBIAR));
+        boolean reemplazo = batalla.getEstado() == EstadoBatalla.ELEGIR_REEMPLAZO;
+        cargarCambios(reemplazo);
+        btnReemplazar.setVisible(reemplazo);
+        btnCambiar.setVisible(!reemplazo);
+        comboCambio.setEnabled(reemplazo || validas.contains(AccionBatalla.CAMBIAR));
+        if (batalla.haTerminado()) {
+            btnAtacar.setEnabled(false);
+            btnEspecial.setEnabled(false);
+            btnRecuperar.setEnabled(false);
+            btnCambiar.setEnabled(false);
+            btnReemplazar.setEnabled(false);
+            ventana.mostrarResultado(batalla.getResultado());
         }
-        btnComenzar.setEnabled(batalla.getEstado() == EstadoBatalla.PREPARACION);
-        btnVerResultado.setEnabled(batalla.haTerminado());
+    }
+
+    private void cargarCambios(boolean reemplazo) {
+        DefaultComboBoxModel<OpcionPokemon> modelo = new DefaultComboBoxModel<>();
+        List<Integer> indices = batalla.getIndicesCambioDisponibles();
+        for (Integer indice : indices) {
+            Pokemon pokemon = batalla.getEquipoJugador().get(indice);
+            modelo.addElement(new OpcionPokemon(indice, pokemon));
+        }
+        comboCambio.setModel(modelo);
+        if (reemplazo) {
+            comboCambio.setToolTipText("Selecciona el Pokémon que entrará en combate");
+        }
     }
 
     private int contarEnPie(List<Pokemon> equipo) {
-        int enPie = 0;
-        for (Pokemon pokemon : equipo) {
-            if (!pokemon.estaDebilitado()) {
-                enPie++;
-            }
-        }
-        return enPie;
+        int total = 0;
+        for (Pokemon pokemon : equipo) if (!pokemon.estaDebilitado()) total++;
+        return total;
     }
 
-    private void volcarMensajes() {
-        for (String mensaje : batalla.consumirMensajesNuevos()) {
-            areaMensajes.append(mensaje + "\n");
+    private static class OpcionPokemon {
+        private final int indice;
+        private final String texto;
+        OpcionPokemon(int indice, Pokemon pokemon) {
+            this.indice = indice;
+            this.texto = pokemon.getNombre() + " - " + pokemon.getPsActual() + "/" + pokemon.getPsMax() + " PS";
         }
-        areaMensajes.setCaretPosition(areaMensajes.getDocument().getLength());
-    }
-
-    private Integer elegirPokemon(String titulo, String mensaje, List<Integer> indices, boolean obligatorio) {
-        if (indices.isEmpty()) {
-            mostrarAviso("No hay otro Pokémon disponible.");
-            return null;
-        }
-
-        List<Pokemon> equipo = batalla.getEquipoJugador();
-        List<String> etiquetas = new ArrayList<>();
-        for (int indice : indices) {
-            Pokemon p = equipo.get(indice);
-            etiquetas.add(p.getNombre() + " (" + p.getTipo().getNombre() + ")  "
-                    + p.getPsActual() + "/" + p.getPsMax() + " PS");
-        }
-        if (!obligatorio) {
-            etiquetas.add("Cancelar");
-        }
-        Object[] opciones = etiquetas.toArray();
-
-        int opcion;
-        do {
-            opcion = JOptionPane.showOptionDialog(this, mensaje, titulo,
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                    null, opciones, opciones[0]);
-        } while (obligatorio && opcion == JOptionPane.CLOSED_OPTION);
-
-        if (opcion < 0 || opcion >= indices.size()) {
-            return null;
-        }
-        return indices.get(opcion);
-    }
-
-    private void mostrarAviso(String texto) {
-        lblAviso.setText(texto);
-    }
-
-    private void limpiarAviso() {
-        lblAviso.setText(" ");
+        @Override public String toString() { return texto; }
     }
 }

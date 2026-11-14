@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package semana5pokemon.Vista;
 import Excepciones.BatallaException;
 import Excepciones.EquipoLlenoException;
@@ -38,17 +34,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.io.IOException;
 
-/**
- * Pantalla 2: selección y armado del equipo.
- *
- * Muestra dos listas (catálogo disponible y Mi equipo), la ficha del Pokémon
- * seleccionado y los botones Agregar, Quitar, Guardar equipo, Restaurar equipo
- * y Comenzar batalla.
- *
- * Toda la lógica de negocio (límites de 6 integrantes y 2 copias, clonación,
- * serialización en memoria) vive en el modelo. Este panel solo llama al modelo,
- * captura las excepciones y muestra el mensaje sin interrumpir la aplicación.
- */
 public class PanelEquipo extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -59,7 +44,6 @@ public class PanelEquipo extends JPanel {
 
     private final VentanaPrincipal ventana;
 
-    /** Guarda en memoria (byte[]) la copia del equipo; vive mientras viva el panel. */
     private final GestorEquipo gestorEquipo = new GestorEquipo();
 
     private Entrenador entrenador;
@@ -90,10 +74,6 @@ public class PanelEquipo extends JPanel {
         construirInterfaz();
         registrarEventos();
     }
-
-    // ------------------------------------------------------------------
-    // Construcción de la interfaz
-    // ------------------------------------------------------------------
 
     private void construirInterfaz() {
         setLayout(new BorderLayout(10, 10));
@@ -214,15 +194,11 @@ public class PanelEquipo extends JPanel {
         actualizarEquipo();
     }
 
-    // ------------------------------------------------------------------
-    // Acciones: el modelo valida y lanza, la GUI captura y muestra el mensaje
-    // ------------------------------------------------------------------
-
     private void agregarSeleccionado() {
         Pokemon seleccion = listaCatalogo.getSelectedValue();
         Equipo equipo = entrenador.getEquipo();
         try {
-            equipo.agregar(seleccion);   // el modelo clona al agregar
+            equipo.agregar(seleccion);
             actualizarEquipo();
             listaEquipo.setSelectedIndex(modeloEquipo.size() - 1);
             mostrarOk(seleccion.getNombre() + " se agregó a tu equipo.");
@@ -235,11 +211,13 @@ public class PanelEquipo extends JPanel {
         int indice = listaEquipo.getSelectedIndex();
         Equipo equipo = entrenador.getEquipo();
         try {
-            
-            Pokemon quitado = equipo.getIntegrantes().get(indice);
             equipo.quitar(indice);
+            Pokemon quitado = null;
+            if (indice >= 0 && indice < modeloEquipo.size()) {
+                quitado = modeloEquipo.getElementAt(indice);
+            }
             actualizarEquipo();
-            mostrarOk(quitado.getNombre() + " salió de tu equipo.");
+            mostrarOk((quitado == null ? "El Pokémon" : quitado.getNombre()) + " salió de tu equipo.");
         } catch (SeleccionVaciaException ex) {
             mostrarError(ex.getMessage());
         }

@@ -1,6 +1,3 @@
-
-
-
 package Excepciones;
 
 public class AccionInvalidaException extends BatallaException {

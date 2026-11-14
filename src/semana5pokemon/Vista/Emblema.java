@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package semana5pokemon.Vista;
 
 import java.awt.Color;
@@ -12,11 +8,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import javax.swing.JPanel;
-
-/**
- *
- * @author Abril
- */
 
     class Emblema extends JPanel {
     private static final Color AZUL_OSCURO = new Color(20, 30, 100);

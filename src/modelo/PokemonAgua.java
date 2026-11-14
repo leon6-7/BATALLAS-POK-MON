@@ -1,4 +1,3 @@
-
 package modelo;
 
 public class PokemonAgua extends Pokemon {
@@ -7,7 +6,6 @@ public class PokemonAgua extends Pokemon {
         super(nombre, TipoPokemon.AGUA, psMax, ataque, defensa, velocidad, "Pistola Agua", 18);
     }
 
-    // habilidad Especial
     @Override
     protected String efectoEspecial(Pokemon objetivo) {
         int danio = golpear(objetivo, getPotenciaEspecial(), 1.0);
