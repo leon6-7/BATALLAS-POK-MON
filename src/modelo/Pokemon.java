@@ -45,30 +45,50 @@ public abstract class Pokemon implements Serializable, Cloneable {
 
     protected abstract String efectoEspecial(Pokemon objetivo);
 
-    public int calcularDanio(Pokemon objetivo, int potencia, double extra) {
-        double multiplicador = tipo.getMultiplicador(objetivo.tipo);
+   public int calcularDanio(Pokemon objetivo, int potencia, double extra) {
+    return calcularDanio(objetivo, potencia, extra, true);
+}
+
+    public int calcularDanio(Pokemon objetivo, int potencia, double extra, boolean aplicarTipo) {
+        double multiplicador = aplicarTipo ? tipo.getMultiplicador(objetivo.tipo) : 1.0;
         double base = ataque + nivel + potencia - objetivo.defensa / 2.0;
         int danio = (int) Math.round(base * multiplicador * extra);
         return Math.max(1, danio);
     }
 
     protected int golpear(Pokemon objetivo, int potencia, double extra) {
-        int danio = calcularDanio(objetivo, potencia, extra);
+    return golpear(objetivo, potencia, extra, true);
+}
+
+    protected int golpear(Pokemon objetivo, int potencia, double extra, boolean aplicarTipo) {
+        int danio = calcularDanio(objetivo, potencia, extra, aplicarTipo);
         return objetivo.recibirDanio(danio);
     }
 
     protected String textoGolpe(Pokemon objetivo, int danio) {
-    String efectividad = TipoPokemon.mensajeEfectividad(tipo.getMultiplicador(objetivo.tipo));
-    String texto = "";
-    if (efectividad.length() > 0) {
-        texto = efectividad + " ";
+    return textoGolpe(objetivo, danio, true);
+}
+
+    protected String textoGolpe(Pokemon objetivo, int danio, boolean mostrarEfectividad) {
+        String texto = "";
+
+        if (mostrarEfectividad) {
+            String efectividad = TipoPokemon.mensajeEfectividad(
+                    tipo.getMultiplicador(objetivo.tipo));
+
+            if (!efectividad.isEmpty()) {
+                texto = efectividad + " ";
+            }
+        }
+
+        texto += objetivo.nombre + " recibió " + danio + " de daño";
+
+        if (objetivo.estaDebilitado()) {
+            texto += " ¡" + objetivo.nombre + " fue debilitado!";
+        }
+
+        return texto;
     }
-    texto += objetivo.nombre + " recibió " + danio + " de daño";
-    if (objetivo.estaDebilitado()) {
-        texto += " ¡" + objetivo.nombre + " fue debilitado!";
-    }
-    return texto;
-   }
 
     public int recibirDanio(int danio) {
         int antes = psActual;

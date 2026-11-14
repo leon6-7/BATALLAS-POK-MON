@@ -10,9 +10,9 @@ public class AtaqueBasico implements Habilidad {
         if (usuario.estaDebilitado()) {
             throw new AccionInvalidaException(usuario.getNombre() + " está debilitado y no puede atacar.");
         }
-        int danio = usuario.golpear(objetivo, POTENCIA, 1.0);
-        return usuario.getNombre() + " usó " + obtenerNombre() + ". "
-                + usuario.textoGolpe(objetivo, danio);
+        int danio = usuario.golpear(objetivo, POTENCIA, 1.0, false);
+return usuario.getNombre() + " usó " + obtenerNombre() + ". "
+        + usuario.textoGolpe(objetivo, danio, false);
     }
 
     @Override
