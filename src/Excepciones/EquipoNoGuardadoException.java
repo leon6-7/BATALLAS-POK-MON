@@ -1,14 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package Excepciones;
 
-/**
- *
- * @author syg
- */
-public class EquipoNoGuardadoException {
-    
+
+package excepciones;
+
+public class EquipoNoGuardadoException extends BatallaException {
+    public EquipoNoGuardadoException(String mensaje) {
+        super(mensaje);
+    }
 }
