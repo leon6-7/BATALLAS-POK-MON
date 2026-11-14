@@ -132,7 +132,7 @@ public class PanelInicio extends JPanel {
         btnContinuar.addActionListener(e -> continuar());
         txtNombre.addActionListener(e -> continuar());
         btnInstrucciones.addActionListener(e -> mostrarInstrucciones());
-        btnSalir.addActionListener(e -> ventana.salir());
+      btnSalir.addActionListener(e -> ventana.confirmarSalida());
 
         txtNombre.getDocument().addDocumentListener(new DocumentListener() {
             @Override

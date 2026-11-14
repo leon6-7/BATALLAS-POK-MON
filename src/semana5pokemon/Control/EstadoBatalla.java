@@ -1,27 +1,16 @@
 package semana5pokemon.Control;
 
 public enum EstadoBatalla {
-    PREPARACION("Preparación", false),
-    ESPERANDO_ACCION("Esperando acción", false),
-    RESOLVIENDO_RONDA("Resolviendo ronda", false),
-    ELEGIR_REEMPLAZO("Elegir reemplazo", false),
-    VICTORIA("Victoria", true),
-    DERROTA("Derrota", true),
-    EMPATE("Empate", true);
+    PREPARACION,
+    ESPERANDO_ACCION,
+    RESOLVIENDO_RONDA,
+    ELEGIR_REEMPLAZO,
+    VICTORIA,
+    DERROTA,
+    EMPATE;
 
-    private final String texto;
-    private final boolean terminado;
-
-    EstadoBatalla(String texto, boolean terminado) {
-        this.texto = texto;
-        this.terminado = terminado;
-    }
-
-    public String getTexto() {
-        return texto;
-    }
-
-    public boolean estaTerminado() {
-        return terminado;
+   
+    public boolean esFinal() {
+        return this == VICTORIA || this == DERROTA || this == EMPATE;
     }
 }
