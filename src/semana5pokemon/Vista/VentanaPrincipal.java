@@ -10,7 +10,7 @@ public class VentanaPrincipal extends JFrame {
 
     public static final String PANTALLA_INICIO = "INICIO";
 
-    private final PanelInicio panelInicio;
+    private final PanelEquipo panelInicio;
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contenedor = new JPanel(cardLayout);
 
@@ -18,7 +18,7 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal(){
         super("Batallas Pokémon");
 
-        panelInicio = new PanelInicio(this);
+        panelInicio = new PanelEquipo(this);
         contenedor.add(panelInicio, PANTALLA_INICIO);
         this.add(contenedor);
         this.configurarVentana();
